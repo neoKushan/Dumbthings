@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 740" font-family="monospace" font-size="13">
+  <rect x="0" y="0" width="420" height="740" fill="#f2f2f3"/>
+  <rect x="0" y="0" width="420" height="46" fill="#1b1b1d"/>
+  <text x="18" y="29" fill="#ffffff" font-size="16" font-family="sans-serif">Dumb things</text>
+
+  <!-- buttons -->
+  <g font-family="sans-serif" font-size="12" fill="#1b1b1d">
+    <rect x="12" y="58"  width="396" height="34" rx="4" fill="#d9d9dc"/>
+    <text x="210" y="80" text-anchor="middle">✓ Logged in (uid &lt;SA_UID&gt;)</text>
+    <rect x="12" y="98"  width="396" height="34" rx="4" fill="#d9d9dc"/>
+    <text x="210" y="120" text-anchor="middle">2. SCAN &amp; PAIR OCF DEVICE</text>
+    <rect x="12" y="138" width="396" height="34" rx="4" fill="#d9d9dc"/>
+    <text x="210" y="160" text-anchor="middle">3. VERIFY OWNED (read doxm only)</text>
+  </g>
+
+  <!-- result box -->
+  <rect x="12" y="188" width="396" height="168" rx="4" fill="#ffffff" stroke="#c9c9cf"/>
+  <text x="24" y="210" fill="#1b1b1d">=== Home Assistant LocalThings ===</text>
+  <g fill="#333">
+    <text x="24" y="232">name:       &lt;DEVICE_NAME&gt;</text>
+    <text x="24" y="252">device_id:  &lt;DEVICE_DI&gt;</text>
+    <text x="24" y="272">owner_id:   &lt;OWNER_UUID&gt;</text>
+    <text x="24" y="292">psk (hex):  &lt;OWNERPSK_HEX&gt;</text>
+    <text x="24" y="312">ble_mac:    aa:bb:cc:00:00:01</text>
+    <text x="24" y="332">cloud:      registered</text>
+  </g>
+
+  <!-- log tail -->
+  <g fill="#555" font-size="11">
+    <text x="18" y="380">owner-PSK DTLS UP with label=mfgcert (0xC037)</text>
+    <text x="18" y="398">secure POST /CoapCloudConfResURI -&gt; 2.04</text>
+    <text x="18" y="416">secure POST /EasySetupResURI -&gt; 2.04</text>
+    <text x="18" y="434">ES state resp -&gt; ps=8 (ES_COMPLETE)</text>
+    <text x="18" y="452">VERIFY: owned=true  devowneruuid=&lt;OWNER_UUID&gt;</text>
+    <text x="18" y="470">DONE — saved to SAVED DEVICES</text>
+  </g>
+
+  <text x="210" y="520" text-anchor="middle" fill="#888" font-family="sans-serif" font-size="11">
+    recreation of the app's success screen — all values are placeholders
+  </text>
+</svg>

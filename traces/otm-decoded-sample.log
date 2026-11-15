@@ -1,0 +1,57 @@
+# Decoded manufacturer-cert OTM + owner-PSK EasySetup (SANITIZED SAMPLE).
+# All identifiers are placeholders. Rendered in the style of decode_capture.py / the app log.
+# OWNER = the mediator (our) UUID; DEVICE = the appliance OCF di.
+
+--- BLE ---
+pairing aa:bb:cc:00:00:01
+conn state=0 new=2   mtu=247   services discovered n=3
+CCCD write props=0x22 mode=INDICATE  ->  OCF ready
+
+--- unsecured setup (plaintext CoAP over BLE) ---
+GET  /oic/sec/doxm
+  <- { "deviceuuid":"<DEVICE_DI>", "owned":false, "oxms":[1,2,65282], "oxmsel":0 }
+POST /sec/provisioninginfo                 -> 2.04
+POST /oic/sec/doxm   { "oxmsel":2 }        -> 2.04
+POST /oic/sec/pstat  { "om":4 }            -> 2.04
+
+--- DTLS handshake (manufacturer certificate) ---
+ClientHello ... server certificate ok ... Finished
+cipher=0xc02b (ECDHE-ECDSA-AES128-GCM-SHA256)  master=48B
+[derive] OwnerPSK (see docs/04) -> <OWNERPSK_HEX>
+
+--- secured (manufacturer-cert session) ---
+GET  /oic/sec/doxm                         -> 2.05
+POST /oic/sec/doxm   { "oxmsel":2, "owned":false,
+                       "devowneruuid":"<OWNER_UUID>", "rowneruuid":NIL }
+  >>> device withholds reply; press Volume-Down <<<
+  <- 2.04   (ownership armed after physical confirm)
+POST /oic/sec/cred   { "creds":[{ "credid":10, "subjectuuid":"<OWNER_UUID>", "credtype":1,
+                        "privatedata":{ "encoding":"oic.sec.encoding.base64", "data":"" } }],
+                        "rowneruuid":"<OWNER_UUID>" }          -> 2.04
+POST /oic/sec/acl    { "aclist":{ "aces":[{ "subjectuuid":"<OWNER_UUID>",
+                        "resources":[{ "href":"*","rt":["*"],"if":["*"] }],
+                        "permission":31 }] }, "rowneruuid":"<OWNER_UUID>" }   -> 2.04
+POST /oic/sec/pstat  { "isop":false, "om":4 }                 -> 2.04
+POST /oic/sec/doxm   { "owned":true }                         -> 2.04   (FINALIZE)
+
+--- device JWT (host-side, over HTTPS) ---
+POST client.smartthings.com/nexo/auth/jwt
+     { "locationId":"<LOCATION_ID>", "roomId":"<ROOM_ID>", "scope":["iot.device"] }
+  <- 200 { "jwt":"<DEVICE_JWT>", ... }
+
+--- owner-PSK reconnect (ECDHE-PSK 0xC037, identity=<OWNER_UUID>) ---
+try label=mfgcert    psk=<OWNERPSK_HEX>
+owner-PSK DTLS UP with label=mfgcert
+POST /WiFiConfResURI      { "tnn":"<WIFI_SSID>", "cd":"<WIFI_PASSWORD>", "wat":3, "wet":4 }  -> 2.04
+POST /DevConfResURI       { "x.com.samsung.language":"en", "x.com.samsung.country":"GB" }     -> 2.04
+POST /CoapCloudConfResURI { "apn":"coaps+tcp://connect.samsungiotcloud.com",
+                            "at":"<DEVICE_JWT>", "cis":"coaps+tcp://<cloud-shard>:443",
+                            "x.com.samsung.clientid":"<ST_CLIENT_ID>",
+                            "x.com.samsung.uid":"<SA_UID>", "x.com.samsung.iatt":2 }           -> 2.04
+POST /EasySetupResURI     { "cn":[1,2] }                                                       -> 2.04
+GET  /EasySetupResURI     -> ps=8 (ES_COMPLETE)
+
+--- verify ---
+VERIFY OWNED: owned=true  devowneruuid=<OWNER_UUID>     (ownership stuck)
+local DTLS-PSK GET /oic/d -> 2.05  di=<DEVICE_DI>  name="<DEVICE_NAME>"
+/oic/res -> links incl. /sec/networkaudio/*  (control app live)

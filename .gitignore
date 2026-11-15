@@ -1,0 +1,23 @@
+# Never commit raw captures, keys, or build artifacts
+*.pcap
+*.keylog
+raw-traces/
+**/raw/
+*.apk
+*.dex
+*.ks
+*.keystore
+classes/
+dexout/
+__pycache__/
+*.pyc
+# local scratch
+scratch/
+.DS_Store
+# secrets / credentials / runtime inputs
+libs/*.jar
+debug.ks
+st_cloud.txt
+diag.txt
+*.bearer
+mitm_oauth.log
