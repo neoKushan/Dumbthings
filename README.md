@@ -52,6 +52,39 @@ the reference app does — see [`docs/02-ocf-ownership-model.md`](docs/02-ocf-ow
 | [`tools/`](tools/) | Capture/decode helpers and a local mock cloud |
 | [`traces/`](traces/) | **Sanitized** protocol excerpts (no raw dumps) |
 
+## Scope — what works, what doesn't
+
+This is **one confirmed data point**: a single Samsung HW-Q950A soundbar. The path it automates
+is specific, and "my device advertises the right bit" is **not** enough to know it will work.
+What the tool actually does:
+
+- A **manufacturer-certificate OTM with an anonymous client** — it presents *no* client
+  certificate (so the AC14K_M chain LocalThings uses on import is irrelevant here); only the
+  device's own factory certificate is used, and the OwnerPSK is derived from that handshake.
+- A **physical-presence confirm** — a button on the device (Volume-Down on the soundbar)
+  approves the ownership transfer.
+- A **full OTM from RFOTM** — the device must be factory-reset into setup mode first. It is
+  **not** the no-reset "authorized transition".
+
+A device is only a plausible candidate if **all** of these hold: its plaintext `/oic/sec/doxm`
+`oxms` includes **`2`** (`OCF_MFG_CERT`); it completes a mfg-cert DTLS handshake with no client
+cert; its ownership confirm is a simple physical button; and you're willing to factory-reset it.
+
+**Known *not* in scope**, as the tool stands:
+
+- **Laundry / appliances onboarded via the vendor OTM** (`oxmsel: 0xFF02`). These need the
+  account-bound hashed-serial confirm proofs (the laundry work in SmartThings-Local's
+  `ocf-pki-laundry.md`), which this tool does not implement — advertising `oxms: 2` is not
+  enough. That is a separate track.
+- **Devices that require a client certificate** for the OTM handshake.
+- **Pairwise-peer (additive) setups** where Samsung stays the OCF owner — this tool takes full
+  ownership instead.
+- **Any model other than the tested HW-Q950A.** Other soundbars/TVs may well work (check the
+  four conditions above), but none are verified here.
+
+The cheap, non-destructive first check on anything new is a plaintext `GET /oic/sec/doxm`:
+`oxms` and `oxmsel` tell you a lot before anything is reset.
+
 ## Using the app
 
 > **Proof of concept.** Built and tested against **one** Samsung HW-Q950A soundbar on one
