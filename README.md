@@ -14,10 +14,11 @@ and small tools. Everything here was reverse-engineered from a single soundbar o
 account; all personal, account, device and network identifiers have been replaced with
 placeholders (see [Sanitization](#sanitization)).
 
-> **Status:** validated end-to-end on one Samsung HW-Q950A soundbar. The key it produces
-> authenticates a real local DTLS-PSK session (`GET /oic/d → 2.05`, `networkaudio` resources
-> served) and the device registers in SmartThings. Treat everything as *one confirmed data
-> point*, not a guarantee for every model or firmware.
+> **Status:** validated end-to-end on a Samsung HW-Q950A soundbar here, and independently reported
+> working on a **HW-Q850A** by another user — both 2021 "A"-series soundbars. The key authenticates
+> a real local DTLS-PSK session (`GET /oic/d → 2.05`, `networkaudio` resources served) and the
+> device registers in SmartThings. Treat these as a couple of early data points, not a guarantee
+> for every model or firmware.
 
 ## Why this exists
 
@@ -79,8 +80,8 @@ cert; its ownership confirm is a simple physical button; and you're willing to f
 - **Devices that require a client certificate** for the OTM handshake.
 - **Pairwise-peer (additive) setups** where Samsung stays the OCF owner — this tool takes full
   ownership instead.
-- **Any model other than the tested HW-Q950A.** Other soundbars/TVs may well work (check the
-  four conditions above), but none are verified here.
+- **Any model beyond the two confirmed 2021 "A"-series soundbars** (HW-Q950A, HW-Q850A). Other
+  soundbars/TVs may well work — check the four conditions above — but nothing else is verified here.
 
 The cheap, non-destructive first check on anything new is a plaintext `GET /oic/sec/doxm`:
 `oxms` and `oxmsel` tell you a lot before anything is reset.
