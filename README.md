@@ -109,10 +109,18 @@ need to allow "install unknown apps" for your browser or file manager). Then:
 - **Now wait and leave it alone.** It runs the secure handshake, joins Wi-Fi, and registers with
   the cloud — **up to ~60 seconds**, during which it shows **"Confirming in SmartThings…"** for
   up to 45s.
-- On success you get a **✓ Added to SmartThings** dialog with the values you need, each with its
-  own copy button.
+- The dialog **title tells you the real outcome:**
+  - **✓ Added to SmartThings** — cloud registration completed and ownership is durable. The Owner
+    PSK is valid and will work in LocalThings. The values are listed, each with its own copy button.
+  - **⚠ Provisioned, but not yet visible in SmartThings** / **Local-only** — the ownership transfer
+    happened but **cloud registration (`ES_COMPLETE`) did not complete**.
 
-If it fails partway, the device usually reverts to unowned — just factory-reset and start over.
+> **Important — a "Local-only" / "not yet visible" result is not usable.** Without `ES_COMPLETE` the
+> device **reverts to unowned on disconnect**, so the Owner PSK it shows is **dead**: it won't
+> auto-populate an identity in LocalThings and won't pass the handshake. Don't try to import it.
+> Factory-reset and retry, checking that the **SmartThings login succeeded** (its button shows ✓)
+> and that the **device actually joined Wi-Fi**. Only a **✓ Added to SmartThings** result yields a
+> key that works.
 
 ### Add it to Home Assistant LocalThings
 
