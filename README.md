@@ -55,9 +55,9 @@ the reference app does — see [`docs/02-ocf-ownership-model.md`](docs/02-ocf-ow
 
 ## Scope — what works, what doesn't
 
-This is **one confirmed data point**: a single Samsung HW-Q950A soundbar. The path it automates
-is specific, and "my device advertises the right bit" is **not** enough to know it will work.
-What the tool actually does:
+These are a couple of early data points (HW-Q950A, HW-Q850A soundbars). The path the tool
+automates is specific, and "my device advertises the right bit" is **not** enough to know it
+will work. What the tool actually does:
 
 - A **manufacturer-certificate OTM with an anonymous client** — it presents *no* client
   certificate (so the AC14K_M chain LocalThings uses on import is irrelevant here); only the
@@ -68,15 +68,21 @@ What the tool actually does:
   **not** the no-reset "authorized transition".
 
 A device is only a plausible candidate if **all** of these hold: its plaintext `/oic/sec/doxm`
-`oxms` includes **`2`** (`OCF_MFG_CERT`); it completes a mfg-cert DTLS handshake with no client
-cert; its ownership confirm is a simple physical button; and you're willing to factory-reset it.
+`oxms` includes a **manufacturer-certificate OTM** method — method `2` (`oic.sec.doxm.mfgcert`)
+or the `0xFF02` (`65282`) `conmfgcert` variant, both of which the tool tries; it completes that
+mfg-cert DTLS handshake with no client cert; its ownership confirm is a simple physical button;
+and you're willing to factory-reset it.
 
 **Known *not* in scope**, as the tool stands:
 
-- **Laundry / appliances onboarded via the vendor OTM** (`oxmsel: 0xFF02`). These need the
-  account-bound hashed-serial confirm proofs (the laundry work in SmartThings-Local's
-  `ocf-pki-laundry.md`), which this tool does not implement — advertising `oxms: 2` is not
-  enough. That is a separate track.
+- **Laundry and other appliances that gate the transfer behind account-bound proofs.** The key
+  difference isn't the OTM method number (`0xFF02` is itself a manufacturer-cert variant, not a
+  non-cert path): it's the **confirm/authorization step**. The tested soundbars complete the
+  transfer with a single physical button; the laundry path in SmartThings-Local's
+  [`ocf-pki-laundry.md`](https://github.com/QuiteYellow/SmartThings-Local/blob/main/docs/ocf-pki-laundry.md)
+  needs fresh serial/account hashed-proof confirmations *before* the manufacturer DTLS, which
+  this tool does not implement. So advertising a mfg-cert method is necessary but not sufficient.
+  That is a separate track (see @Jason-Morcos's work in #435).
 - **Devices that require a client certificate** for the OTM handshake.
 - **Pairwise-peer (additive) setups** where Samsung stays the OCF owner — this tool takes full
   ownership instead.
